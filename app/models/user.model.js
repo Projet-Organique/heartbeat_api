@@ -2,17 +2,25 @@ module.exports = mongoose => {
   const User = mongoose.model(
     "user",
     mongoose.Schema({
-     uid: {
+     l_id: {
          type: String,
-         required: true
+         required: false
      },
      _id: {
          type: String,
-         required: true
+         required: false
      },
+     ip: {
+      type: String,
+      required: false
+    },
+    universe: {
+      type: Number,
+      required: false
+    },
      pulse: {
          type: Number,
-         required: true
+         required: false
      },
      color: {
          type: String,

@@ -4,14 +4,17 @@ const User = db.users;
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
   // Validate request
-  if (!req.body.title) {
+  if (!req.body) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
 
   // Create a Tutorial
   const user = new User({
-    title: req.body.title,
+    uid: req.body.uid,
+    _id: req.body._id,
+    pulse: req.body.pulse,
+    color: req.body.color,
   });
 
   // Save Tutorial in the database
@@ -52,13 +55,13 @@ exports.findOne = (req, res) => {
   User.findById(id)
     .then(data => {
       if (!data)
-        res.status(404).send({ message: "Not found Tutorial with id " + id });
+        res.status(404).send({ message: "Not found User with id " + id });
       else res.send(data);
     })
     .catch(err => {
       res
         .status(500)
-        .send({ message: "Error retrieving Tutorial with id=" + id });
+        .send({ message: "Error retrieving User with id=" + id });
     });
 };
 
@@ -72,13 +75,13 @@ exports.update = (req, res) => {
 
   const id = req.params.id;
 
-  Tutorial.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+  User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then(data => {
       if (!data) {
         res.status(404).send({
-          message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found!`
+          message: `Cannot update User with id=${id}. Maybe User was not found!`
         });
-      } else res.send({ message: "Tutorial was updated successfully." });
+      } else res.send({ message: "User was updated successfully." });
     })
     .catch(err => {
       res.status(500).send({

@@ -1,25 +1,44 @@
+const express = require("express");
+const cors = require("cors");
 
-const express = require('express')
-let app = express();
+const app = express();
 
-// Import Body parser
-let bodyParser = require('body-parser');// Import Mongoose
-let mongoose = require('mongoose');// Configure bodyparser to handle post requests
+var corsOptions = {
+  origin: "http://localhost:8081"
+};
 
+app.use(cors(corsOptions));
+
+// parse requests of content-type - application/json
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
-mongoose.connect('mongodb://localhost/resthub', { useNewUrlParser: true});var db = mongoose.connection;
 
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 
-var port = process.env.PORT || 8080;
+const db = require("./app/models");
+db.mongoose
+  .connect(db.url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+  });
 
-app.get('/', (req, res) => res.send('Hello World with Express'));
-app.listen(port, function () {
-    console.log("Running RestHub on port " + port);
+// simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to wd application." });
 });
 
-// Add the code below to index.js// Import routes
-let apiRoutes = require("./routes")
-app.use('/api', apiRoutes)
+
+
+// set port, listen for requests
+const PORT = process.env.PORT || 8080;
+require("./app/routes/user.routes")(app);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});

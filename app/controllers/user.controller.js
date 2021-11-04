@@ -1,5 +1,8 @@
 const db = require("../models");
 const User = db.users;
+const { Client, Server } = require('node-osc');
+const client = new Client('192.168.1.17', 8082);
+var server = new Server(8082, '0.0.0.0');
 
 // Create and Save a new user
 exports.create = (req, res) => {
@@ -15,11 +18,10 @@ exports.create = (req, res) => {
     l_id: req.body.l_id,
     _id: req.body._id,
     pulse: req.body.pulse,
-    ip: req.body.ip,
     universe: req.body.universe
   });
 
-  // Save Tutorial in the database
+  // Save User in the database
   user
     .save(user)
     .then(data => {
@@ -33,7 +35,7 @@ exports.create = (req, res) => {
     });
 };
 
-// Retrieve all Tutorials from the database.
+// Retrieve all Users from the database.
 exports.findAll = (req, res) => {
   const title = req.query.title;
   var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
@@ -45,7 +47,7 @@ exports.findAll = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving tutorials."
+          err.message || "Some error occurred while retrieving Users."
       });
     });
 };
@@ -53,12 +55,17 @@ exports.findAll = (req, res) => {
 // Find a single User with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-
   User.findById(id)
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found User with id " + id });
-      else res.send(data);
+      else{
+        client.send('/data,', JSON.stringify(data), (err) => {
+          if (err) console.error(err);
+          //client.close();
+        });
+        res.send(data);
+      }
     })
     .catch(err => {
       res
@@ -67,7 +74,7 @@ exports.findOne = (req, res) => {
     });
 };
 
-// Update a Tutorial by the id in the request
+// Update a User by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
@@ -92,7 +99,7 @@ exports.update = (req, res) => {
     });
 };
 
-// Delete a Tutorial with the specified id in the request
+// Delete a User with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
 
@@ -115,7 +122,7 @@ exports.delete = (req, res) => {
     });
 };
 
-// Delete all Tutorials from the database.
+// Delete all Users from the database.
 exports.deleteAll = (req, res) => {
   User.deleteMany({})
     .then(data => {
@@ -131,7 +138,7 @@ exports.deleteAll = (req, res) => {
     });
 };
 
-// Find all published Tutorials
+// Find all published Users
 exports.findAllPublished = (req, res) => {
   
 };

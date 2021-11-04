@@ -10,10 +10,6 @@ module.exports = mongoose => {
          type: String,
          required: false
      },
-     ip: {
-      type: String,
-      required: false
-    },
     universe: {
       type: Number,
       required: false

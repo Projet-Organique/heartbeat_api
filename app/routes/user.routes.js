@@ -3,9 +3,10 @@ module.exports = app => {
 
   var router = require("express").Router();
 
+  router.post("/randomUser/", users.randomUser);
   // Create a new User
   router.post("/", users.create);
-  router.post("/:id", users.create);
+
   // Retrieve all users
   router.get("/", users.findAll);
 

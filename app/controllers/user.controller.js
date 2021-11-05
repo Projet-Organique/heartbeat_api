@@ -4,6 +4,42 @@ const { Client, Server } = require('node-osc');
 const client = new Client('192.168.1.17', 8082);
 var server = new Server(8082, '0.0.0.0');
 
+
+ exports.randomUser = async (req, res)  => {
+console.log(req.body);
+  const pulse = req.body.pulse;
+  let pick = null;
+  console.log(pulse);
+  User.find({"pulse":0})
+    .then(async data => {
+      let picked = data[Math.floor(Math.random()*data.length)]
+      if(picked == null){
+        res.status(500).send({
+          message: "No lantern found :("
+        });
+      }else{
+        await User.findByIdAndUpdate(picked.id, req.body, { useFindAndModify: false })
+        User.findById(picked.id)
+        .then(data => {
+          if (!data)
+            res.status(404).send({ message: "Not found User with id " + id });
+          else {
+            res.send(data);
+          }
+        })
+      }
+
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving Users."
+      });
+    });
+
+ 
+}
+
 // Create and Save a new user
 exports.create = (req, res) => {
   console.log(req.body);
@@ -59,7 +95,7 @@ exports.findOne = (req, res) => {
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found User with id " + id });
-      else{
+      else {
         client.send('/data,', JSON.stringify(data), (err) => {
           if (err) console.error(err);
           //client.close();
@@ -140,5 +176,5 @@ exports.deleteAll = (req, res) => {
 
 // Find all published Users
 exports.findAllPublished = (req, res) => {
-  
+
 };

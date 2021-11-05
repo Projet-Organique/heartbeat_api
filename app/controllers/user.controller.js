@@ -1,7 +1,7 @@
 const db = require("../models");
 const User = db.users;
 const { Client } = require('node-osc');
-const client = new Client('192.168.86.28', 8082);
+const client = new Client('192.168.1.17', 8082);
 
 exports.playground = async (req, res) => {
   try {
@@ -43,6 +43,7 @@ exports.resetPulse = async (req, res) => {
 
 //SEND A RANDOMUSER WITH PULSE 0 WITH A RECEIVED PULSE VALUE 
 exports.randomUser = async (req, res) => {
+  console.log(req);
   try {
     const filter = { pulse: 0 };
     const allAvailableUser = await User.find(filter);
@@ -111,6 +112,7 @@ exports.findOne = async (req, res) => {
   const id = req.params.id;
   try {
     const user = await User.findById(id);
+    console.log(user);
     client.send('/base_data,', JSON.stringify(user), (err) =>{
       if(err) console.log(err);
     })
@@ -133,6 +135,11 @@ exports.update = async (req, res) => {
   const id = req.params.id;
   try {
     await User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    const user = await User.findById(id);
+    console.log(user);
+    client.send('/base_data,', JSON.stringify(user), (err) =>{
+      if(err) console.log(err);
+    })
       res.send(`User ${id} updated successful!`);
   } catch (error) {
     console.log('error', error);

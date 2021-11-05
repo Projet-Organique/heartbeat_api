@@ -3,15 +3,19 @@ module.exports = app => {
 
   var router = require("express").Router();
 
+  router.post("/playground/", users.playground);
+
+  // Reset all pulse to 0
+  router.post("/resetPulse/", users.resetPulse);
+
+  // Return random user with pulse sended
   router.post("/randomUser/", users.randomUser);
+
   // Create a new User
   router.post("/", users.create);
 
   // Retrieve all users
   router.get("/", users.findAll);
-
-  // Retrieve all published users
-  router.get("/published", users.findAllPublished);
 
   // Retrieve a single User with id
   router.get("/:id", users.findOne);

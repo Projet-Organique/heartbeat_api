@@ -3,8 +3,6 @@ module.exports = app => {
 
   var router = require("express").Router();
 
-  router.post("/playground/", users.playground);
-
   // Reset all pulse to 0
   router.post("/resetPulse/", users.resetPulse);
 

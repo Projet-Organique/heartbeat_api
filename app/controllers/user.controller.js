@@ -3,24 +3,6 @@ const User = db.users;
 const { Client } = require('node-osc');
 const client = new Client('192.168.86.28', 8082);
 
-exports.playground = async (req, res) => {
-  try {
-    const user = new User({
-      l_id: req.body.l_id,
-      _id: req.body._id,
-      pulse: req.body.pulse,
-      universe: req.body.universe
-    });
-    await user.save(user);
-    res.send(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      message: error
-    });
-  }
-}
-
 // RESET PULSE TO 0
 exports.resetPulse = async (req, res) => {
   try {
@@ -80,7 +62,8 @@ exports.create = async (req, res) => {
       l_id: req.body.l_id,
       _id: req.body._id,
       pulse: req.body.pulse,
-      universe: req.body.universe
+      universe: req.body.universe,
+      onReceiver: req.body.onReceiver
     });
     await user.save(user);
     res.send(user);
@@ -111,9 +94,6 @@ exports.findOne = async (req, res) => {
   const id = req.params.id;
   try {
     const user = await User.findById(id);
-    client.send('/base_data,', JSON.stringify(user), (err) =>{
-      if(err) console.log(err);
-    })
     res.send(user);
   } catch (error) {
     res.status(500).send({
@@ -131,8 +111,14 @@ exports.update = async (req, res) => {
     });
   }
   const id = req.params.id;
+  console.log('id', id);
   try {
     await User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    const user = await User.findById(id);
+    console.log('user', user);
+    client.send('/base_data,', JSON.stringify(user), (err) =>{
+      if(err) console.log(err);
+    })
       res.send(`User ${id} updated successful!`);
   } catch (error) {
     console.log('error', error);

@@ -23,9 +23,9 @@ module.exports = mongoose => {
          required: false
      },
      onReceiver: {
-      type: Number,
-      required: false,
-    },
+         type: Number,
+         required: false
+     },
     })
   );
   return User;

@@ -4,7 +4,10 @@ module.exports = app => {
   var router = require("express").Router();
 
   // Reset all pulse to 0
-  router.post("/resetPulse/", users.resetPulse);
+  router.post("/reset/", users.resetAll);
+
+  // Reset one pulse to 0
+  router.put("/reset/:id", users.reset);
 
   // Return random user with pulse sended
   router.post("/randomUser/", users.randomUser);

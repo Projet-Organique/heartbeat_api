@@ -4,7 +4,7 @@ const { Client } = require('node-osc');
 const client = new Client('192.168.86.28', 8082);
 
 // RESET PULSE TO 0
-exports.resetPulse = async (req, res) => {
+exports.resetAll = async (req, res) => {
   try {
     const options = { upsert: true };
     const updateDoc = {
@@ -17,6 +17,20 @@ exports.resetPulse = async (req, res) => {
     res.send("All pulse are now set to 0");
   } catch (error) {
     console.error(error);
+    res.status(500).send({
+      message: error
+    });
+  }
+}
+
+// RESET ONE PULSE TO 0
+exports.reset = async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findByIdAndUpdate(id, {"pulse": "0"}, { useFindAndModify: false })
+      res.send(`User ${id} pulse is now 0!`);
+  } catch (error) {
+    console.log('error', error);
     res.status(500).send({
       message: error
     });

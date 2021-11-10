@@ -1,7 +1,7 @@
 const db = require("../models");
 const User = db.users;
 const { Client } = require('node-osc');
-const client = new Client('192.168.1.17', 8082);
+
 
 // RESET PULSE TO 0
 exports.resetAll = async (req, res) => {
@@ -12,8 +12,9 @@ exports.resetAll = async (req, res) => {
     };
     const allUser = await User.find();
     allUser.forEach(async element => {
-      await User.updateOne({ _id: element._id }, updateDoc, options);
+      await User.update({ _id: element._id }, updateDoc, options);
     });
+    
     res.send("All pulse are now set to 0");
   } catch (error) {
     console.error(error);
@@ -125,13 +126,17 @@ exports.update = async (req, res) => {
     });
   }
   const id = req.params.id;
+  const path = req.params.path
+  const port = req.params.port
+  console.log(path);
   try {
     await User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     const user = await User.findById(id);
     console.log('user', user);
     // a user got a pulse update, send it to touch to tell that
     // that user is active
-    client.send('/base_data,', JSON.stringify(user), (err) =>{
+    const client = new Client('192.168.1.17', port);
+    client.send("/"+path, JSON.stringify(user), (err) =>{
       if(err) console.log(err);
     })
       res.send(`User ${id} updated successful!`);

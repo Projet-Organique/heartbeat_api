@@ -1,7 +1,18 @@
 const db = require("../models");
 const User = db.users;
-const { Client } = require('node-osc');
+var mqtt = require('mqtt')
+const host = '127.0.0.1'
+const port = '1883'
+var client  = mqtt.connect(`mqtt://${host}:${port}`)
+client.on('connect', function () {
+  console.log(`'Connected to MQTT: mqtt://${host}:${port}`)
+})
 
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString())
+  client.end()
+})
 
 // RESET PULSE TO 0
 exports.resetAll = async (req, res) => {
@@ -24,6 +35,8 @@ exports.resetAll = async (req, res) => {
   }
 }
 
+
+
 // RESET ONE PULSE TO 0
 exports.reset = async (req, res) => {
   const id = req.params.id;
@@ -45,9 +58,10 @@ exports.randomUser = async (req, res) => {
     const filter = { pulse: 0 };
     const allAvailableUser = await User.find(filter);
     if (allAvailableUser.length <= 0) {
-      throw 'No lantern available!';
+      return res.status(400).send({
+         message: 'No lantern available!'
+      });
     }
-    console.log('allAvailableUser: ', allAvailableUser);
     let picked = allAvailableUser[Math.floor(Math.random() * allAvailableUser.length)]
     // const options = { upsert: true };
     // const updateDoc = {
@@ -59,7 +73,6 @@ exports.randomUser = async (req, res) => {
     //const return_result = await User.find({ _id: picked._id });
     res.send(picked);
   } catch (error) {
-    console.error(error);
     res.status(500).send({
       message: error
     });
@@ -75,13 +88,12 @@ exports.create = async (req, res) => {
   }
   try {
     const user = new User({
-      l_id: req.body.l_id,
-      _id: req.body._id,
-      pulse: req.body.pulse,
-      universe: req.body.universe,
-      onReceiver: req.body.onReceiver
+      hostName: req.body.hostName,
+      macAddress: req.body.macAddress,
+      ipAddress: req.body.ipAddress,
     });
     await user.save(user);
+    console.log('user', user);
     res.send(user);
   } catch (error) {
     console.error(error);
@@ -120,26 +132,19 @@ exports.findOne = async (req, res) => {
 
 // Update a User by the id in the request
 exports.update = async (req, res) => {
+  console.log('req', req.body);
   if (!req.body) {
     return res.status(400).send({
       message: "Data to update can not be empty!"
     });
   }
   const id = req.params.id;
-  const path = req.params.path
-  const port = req.params.port
-  console.log(path);
   try {
     await User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     const user = await User.findById(id);
     console.log('user', user);
-    // a user got a pulse update, send it to touch to tell that
-    // that user is active
-    const client = new Client('192.168.1.17', port);
-    client.send("/"+path, JSON.stringify(user), (err) =>{
-      if(err) console.log(err);
-    })
-      res.send(`User ${id} updated successful!`);
+    client.publish('/api/user/newPulse', JSON.stringify(user))
+    res.send(`User ${id} updated successful!`);
   } catch (error) {
     console.log('error', error);
     res.status(500).send({

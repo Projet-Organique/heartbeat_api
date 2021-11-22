@@ -22,7 +22,7 @@ module.exports = app => {
   router.get("/:id", users.findOne);
 
   // Update a User with id
-  router.put("/:id/:path/:port", users.update);
+  router.put("/:id", users.update);
 
   // Delete a User with id
   router.delete("/:id", users.delete);

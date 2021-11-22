@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-
 const app = express();
+
 
 var corsOptions = {
   origin: "http://localhost:8081"
@@ -11,7 +11,7 @@ app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
 app.use(express.json());
-
+		
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,12 +31,12 @@ db.mongoose
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to wd application." });
+  res.json({ message: "Hello" });
 });
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 require("./app/routes/user.routes")(app);
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}.`);
 });

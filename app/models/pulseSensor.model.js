@@ -1,17 +1,16 @@
-//receiver are the trees that receive user (a.k.a lantern)
 module.exports = mongoose => {
-  const User = mongoose.model(
-    "receiver",
+  const Pulsesensor = mongoose.model(
+    "pulsesensor",
     mongoose.Schema({
     universe: {
       type: Number,
       required: false
     },
-     pulse: {
-         type: Number,
+     state: {
+         type: String,
          required: false
      },
     })
   );
-  return User;
+  return Pulsesensor;
 };

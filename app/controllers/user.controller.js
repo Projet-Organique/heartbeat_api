@@ -1,18 +1,9 @@
 const db = require("../models");
 const User = db.users;
-var mqtt = require('mqtt')
-const host = '127.0.0.1'
-const port = '1883'
-var client  = mqtt.connect(`mqtt://${host}:${port}`)
-client.on('connect', function () {
-  console.log(`'Connected to MQTT: mqtt://${host}:${port}`)
-})
+const client = db.mqtt;
 
-client.on('message', function (topic, message) {
-  // message is Buffer
-  console.log(message.toString())
-  client.end()
-})
+client.publish('api/pulsesensors/state', "222")
+
 
 // RESET PULSE TO 0
 exports.resetAll = async (req, res) => {

@@ -6,5 +6,7 @@ const db = {};
 db.mongoose = mongoose;
 db.url = dbConfig.url;
 db.users = require("./user.model.js")(mongoose);
-db.receivers = require("./receiver.model.js")(mongoose);
+db.pulseSensors = require("./pulsesensor.model.js")(mongoose);
+db.mqtt = require("./mqtt.model.js")();
+
 module.exports = db;

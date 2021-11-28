@@ -9,15 +9,15 @@ module.exports = mongoose => {
    },
    hostName: {
        type: String,
-       required: true
+       required: false
    },
    macAddress: {
        type: String,
-       required: true
+       required: false
    },
    ipAddress: {
        type: String,
-       required: true,
+       required: false,
    },
    startUniverse: {
        type: Number,
@@ -28,6 +28,11 @@ module.exports = mongoose => {
        type: Number,
        required: false,
        default: 0
+   },
+   rgb:{
+    type: String,
+    required: false,
+    default: 'rgb(0,0,0)'
    },
    status:{
        type: Boolean,

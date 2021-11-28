@@ -1,8 +1,9 @@
 const db = require("../models");
 const Pulsesensor = db.pulseSensors;
+const User = db.users;
 const client = db.mqtt;
 
-client.publish('api/pulsesensors/state', "22")
+//client.publish('api/pulsesensors/state', "22")
 
 
 // RESET PULSE TO 0
@@ -62,6 +63,7 @@ exports.create = async (req, res) => {
     }
     try {
         const pulsesensor = new Pulsesensor({
+            _id: req.body._id,
             universe: req.body.universe,
             state: req.body.state,
         });
@@ -77,22 +79,18 @@ exports.create = async (req, res) => {
 
 // Retrieve all Users from the database.
 exports.findAll = async (req, res) => {
+    console.log(req);
     const title = req.query.title;
-    var condition = title ? {
-        title: {
-            $regex: new RegExp(title),
-            $options: "i"
-        }
-    } : {};
+    var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
     try {
-        const data = await User.find(condition);
-        res.send(data);
+      const data = await Pulsesensor.find(condition);
+      res.send(data);
     } catch (error) {
-        res.status(500).send({
-            message: error
-        });
+      res.status(500).send({
+        message: error
+      });
     }
-};
+  };
 
 // Find a single User with an id
 exports.findOne = async (req, res) => {
@@ -107,9 +105,11 @@ exports.findOne = async (req, res) => {
     }
 };
 
+
 // Update a User by the id in the request
 exports.update = async (req, res) => {
-    console.log('req', req.body);
+
+
     if (!req.body) {
         return res.status(400).send({
             message: "Data to update can not be empty!"
@@ -121,7 +121,9 @@ exports.update = async (req, res) => {
             useFindAndModify: false
         })
         const puslesensor = await Pulsesensor.findById(id);
-        client.publish('/api/pulsesensors/state', JSON.stringify(puslesensor))
+        
+       // client.publish('/api/pulsesensors/state', JSON.stringify(puslesensor))
+       client.publish('api/pulsesensors/'+id+'/state', JSON.stringify(puslesensor))
         res.send(`PulseSensor ${id} updated successful!`);
     } catch (error) {
         console.log('error', error);

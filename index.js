@@ -9,6 +9,7 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
+
 // parse requests of content-type - application/json
 app.use(express.json());
 		

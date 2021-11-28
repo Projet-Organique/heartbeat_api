@@ -1,6 +1,6 @@
 module.exports = () => {
   var mqtt = require('mqtt')
-  const host = '127.0.0.1'
+  const host = '192.168.1.13'
   const port = '1883'
   var client = mqtt.connect(`mqtt://${host}:${port}`)
   client.port = port;

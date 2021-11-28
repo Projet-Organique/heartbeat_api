@@ -27,5 +27,5 @@ module.exports = app => {
   // Create a new User
   router.delete("/", pulsesensors.deleteAll);
 
-  app.use('/api/pulseSensors', router);
+  app.use('/api/pulsesensors', router);
 };

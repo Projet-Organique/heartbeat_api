@@ -1,8 +1,8 @@
 const db = require("../models");
 const User = db.users;
 const client = db.mqtt;
-
-client.publish('api/pulsesensors/state', "222")
+const randomColor = require('../utils');
+//client.publish('api/pulsesensors/state', "222")
 
 
 // RESET PULSE TO 0
@@ -11,10 +11,13 @@ exports.resetAll = async (req, res) => {
     const options = { upsert: true };
     const updateDoc = {
       $set: { pulse: 0 },
+      $set: { "rgb": "0, 0, 0" },
     };
     const allUser = await User.find();
+    console.log(allUser);
     allUser.forEach(async element => {
-      await User.update({ _id: element._id }, updateDoc, options);
+      await User.updateOne({ _id: element._id }, {"pulse":"0", "rgb": "0, 0, 0" }, options);
+      client.publish('api/users/'+element.id+'/active', JSON.stringify(element))
     });
     
     res.send("All pulse are now set to 0");
@@ -32,8 +35,11 @@ exports.resetAll = async (req, res) => {
 exports.reset = async (req, res) => {
   const id = req.params.id;
   try {
-    await User.findByIdAndUpdate(id, {"pulse": "0"}, { useFindAndModify: false })
-      res.send(`User ${id} pulse is now 0!`);
+    await User.findByIdAndUpdate(id, {"pulse": "0", "rgb":"0, 0, 0"}, { useFindAndModify: false })
+    const user = await User.findById(id);
+    console.log(user);
+    client.publish('api/users/'+user.id+'/active', JSON.stringify(user))
+    res.send(`User ${id} pulse is now 0!`);
   } catch (error) {
     console.log('error', error);
     res.status(500).send({
@@ -44,7 +50,9 @@ exports.reset = async (req, res) => {
 
 //SEND A RANDOMUSER WITH PULSE 0 WITH A RECEIVED PULSE VALUE 
 exports.randomUser = async (req, res) => {
-  console.log(req);
+      
+  const color = await randomColor.getRandomColor();
+  global.color = color;
   try {
     const filter = { pulse: 0 };
     const allAvailableUser = await User.find(filter);
@@ -54,15 +62,14 @@ exports.randomUser = async (req, res) => {
       });
     }
     let picked = allAvailableUser[Math.floor(Math.random() * allAvailableUser.length)]
-    // const options = { upsert: true };
-    // const updateDoc = {
-    //   $set: { pulse: req.body.pulse },
-    // };
-    //const result = await User.updateOne({ _id: picked._id }, updateDoc, options);
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: { rgb: color },
+     };
+    const result = await User.updateOne({_id: picked._id}, updateDoc, options);
     //console.log(`${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,);
-    //  await client.close();
-    //const return_result = await User.find({ _id: picked._id });
-    res.send(picked);
+    const user = await User.findById(picked._id);
+    res.send(user);
   } catch (error) {
     res.status(500).send({
       message: error
@@ -111,6 +118,7 @@ exports.findAll = async (req, res) => {
 // Find a single User with an id
 exports.findOne = async (req, res) => {
   const id = req.params.id;
+  console.log(id);
   try {
     const user = await User.findById(id);
     res.send(user);
@@ -123,7 +131,7 @@ exports.findOne = async (req, res) => {
 
 // Update a User by the id in the request
 exports.update = async (req, res) => {
-  console.log('req', req.body);
+  
   if (!req.body) {
     return res.status(400).send({
       message: "Data to update can not be empty!"
@@ -133,8 +141,8 @@ exports.update = async (req, res) => {
   try {
     await User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     const user = await User.findById(id);
-    console.log('user', user);
-    client.publish('/api/user/newPulse', JSON.stringify(user))
+
+    client.publish('api/users/'+user.id+'/active', JSON.stringify(user))
     res.send(`User ${id} updated successful!`);
   } catch (error) {
     console.log('error', error);

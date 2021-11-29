@@ -50,7 +50,6 @@ exports.reset = async (req, res) => {
 
 //SEND A RANDOMUSER WITH PULSE 0 WITH A RECEIVED PULSE VALUE 
 exports.randomUser = async (req, res) => {
-      
   const color = await randomColor.getRandomColor();
   global.color = color;
   try {

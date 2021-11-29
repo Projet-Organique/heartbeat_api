@@ -1,13 +1,30 @@
 
+const axios = require('axios');
 /**
  * Get a random RGB color
  * @return {string} return random RGB color
  */
-async function getRandomColor(){
-    var num = Math.round(0xffffff * Math.random());
-    var r = num >> 16;
-    var g = num >> 8 & 255;
-    var b = num & 255;
-    return `${r}, ${g}, ${b}`;
- }
- exports.getRandomColor = getRandomColor;
+async function getRandomColor() {
+  return new Promise(async (resolve) => {
+    var data = '{"input":[],"model":"default"}';
+    var config = {
+      method: 'get',
+      url: 'http://colormind.io/api/',
+      headers: {
+        'Content-Type': 'text/plain'
+      },
+      data: data
+    };
+    axios(config)
+      .then(function (response) {
+        var colorArray = response.data.result
+        var item = JSON.stringify(colorArray[Math.floor(Math.random() * colorArray.length)]);
+        var color = item.replace(/[\[\]']+/g, '');
+        resolve(color)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  });
+}
+exports.getRandomColor = getRandomColor;

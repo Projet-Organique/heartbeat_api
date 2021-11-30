@@ -3,8 +3,6 @@ const Pulsesensor = db.pulseSensors;
 const User = db.users;
 const client = db.mqtt;
 
-//client.publish('api/pulsesensors/state', "22")
-
 
 // RESET PULSE TO 0
 exports.resetAll = async (req, res) => {

@@ -140,7 +140,10 @@ exports.update = async (req, res) => {
   try {
     await User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     const user = await User.findById(id);
-
+    if(user.id == "5a8e"){
+      client.publish('/lantern/5a8e/audio/ignite', user.pulse.toString())
+    }
+    
     client.publish('api/users/'+user.id+'/active', JSON.stringify(user))
     res.send(`User ${id} updated successful!`);
   } catch (error) {
